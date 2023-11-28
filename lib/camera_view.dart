@@ -32,9 +32,9 @@ class _CameraViewState extends State<CameraView> {
   // double _currentZoomLevel = 1.0;
   // double _minAvailableZoom = 1.0;
   // double _maxAvailableZoom = 1.0;
-  double _minAvailableExposureOffset = 0.0;
-  double _maxAvailableExposureOffset = 0.0;
-  double _currentExposureOffset = 0.0;
+  // double _minAvailableExposureOffset = 0.0;
+  // double _maxAvailableExposureOffset = 0.0;
+  // double _currentExposureOffset = 0.0;
   bool _changingCameraLens = false;
 
   @override
@@ -93,7 +93,7 @@ class _CameraViewState extends State<CameraView> {
           _switchLiveCameraToggle(),
           // _detectionViewModeToggle(),
           // _zoomControl(),
-          _exposureControl(),
+          // _exposureControl(),
         ],
       ),
     );
@@ -135,56 +135,7 @@ class _CameraViewState extends State<CameraView> {
         ),
       );
 
-  Widget _exposureControl() => Positioned(
-        top: 40,
-         right: 8,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxHeight: 250,
-          ),
-          child: Column(children: [
-            Container(
-              width: 55,
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    '${_currentExposureOffset.toStringAsFixed(1)}x',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: RotatedBox(
-                quarterTurns: 3,
-                child: SizedBox(
-                  height: 30,
-                  child: Slider(
-                    value: _currentExposureOffset,
-                    min: _minAvailableExposureOffset,
-                    max: _maxAvailableExposureOffset,
-                    activeColor: Colors.white,
-                    inactiveColor: Colors.white30,
-                    onChanged: (value) async {
-                      setState(() {
-                        _currentExposureOffset = value;
-                      });
-                      await _controller?.setExposureOffset(value);
-                    },
-                  ),
-                ),
-              ),
-            )
-          ]),
-        ),
-      );
-
-      Future _startLiveFeed() async {
+  Future _startLiveFeed() async {
     final camera = _cameras[_cameraIndex];
     _controller = CameraController(
       camera,
@@ -204,13 +155,6 @@ class _CameraViewState extends State<CameraView> {
       // _controller?.getMaxZoomLevel().then((value) {
       //   _maxAvailableZoom = value;
       // });
-      _currentExposureOffset = 0.0;
-      _controller?.getMinExposureOffset().then((value) {
-        _minAvailableExposureOffset = value;
-      });
-      _controller?.getMaxExposureOffset().then((value) {
-        _maxAvailableExposureOffset = value;
-      });
       _controller?.startImageStream(_processCameraImage).then((value) {
         if (widget.onCameraFeedReady != null) {
           widget.onCameraFeedReady!();

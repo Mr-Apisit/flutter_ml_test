@@ -28,13 +28,45 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
   bool _canProcess = true;
   bool _isBusy = false;
 
-  var faceRegList = <String, File>{};
+  Map faceRegList = <String, File>{};
 
-  var _cameraLensDirection = CameraLensDirection.front;
+  CameraLensDirection _cameraLensDirection = CameraLensDirection.front;
+
+  bool stressFace = false;
+  bool closeEyeFace = false;
+
+  bool upperFace = false;
+  bool lowerFace = false;
+
+  bool turnLeftFace = false;
+  bool turnRightFace = false;
+
+  bool winkLeftEye = false;
+  bool winkRightEye = false;
+
+  bool smileFace = false;
+  bool bigSmileFace = false;
 
   @override
   void dispose() {
     _canProcess = false;
+    stressFace = false;
+    closeEyeFace = false;
+
+    upperFace = false;
+    lowerFace = false;
+
+    turnLeftFace = false;
+    turnRightFace = false;
+
+    winkLeftEye = false;
+    winkRightEye = false;
+
+    smileFace = false;
+    bigSmileFace = false;
+
+    faceRegList = <String, File>{};
+
     _faceDetector.close();
     super.dispose();
   }
@@ -42,7 +74,6 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
   @override
   Widget build(BuildContext context) {
     return DetectorView(
-      title: 'Face Detector',
       onImage: (inputImage) async {
         if (!_canProcess) return;
         if (_isBusy) return;
@@ -50,21 +81,26 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
         final faces = await _faceDetector.processImage(inputImage);
         if (inputImage.metadata?.size != null && inputImage.metadata?.rotation != null) {
           for (final Face face in faces) {
-            if (face.boundingBox.size.width < 600) {
-              print("face is to far away");
-            }
-            if (face.boundingBox.size.width > 700) {
-              print("face is to close");
+            var condition = face.boundingBox.center.direction;
+            if (condition > 1.1) {
+              print("face is to far away ...... :$condition");
+            } else if (condition < 1.05) {
+              print("face is to close ..... : $condition");
+            } else {
+              await Future.delayed(const Duration(milliseconds: 2000));
+              print("face is stand $condition");
+              await Future.delayed(const Duration(milliseconds: 2000));
+              print("save face");
             }
             if (face.smilingProbability! > 0.9) {
-              print('BIG smile: ${face.smilingProbability}');
+              // print('BIG smile: ${face.smilingProbability}');
               final tempDir = await getTemporaryDirectory();
               File file = await File('${tempDir.path}/big_smile.jpg').create();
               file.writeAsBytesSync(inputImage.bytes!);
               Image.memory(inputImage.bytes!);
-              print('file path ${file.path}');
+              // print('file path ${file.path}');
               faceRegList.addAll({"smile": file});
-              print('length of map : ${faceRegList.length} and data : $faceRegList');
+              // print('length of map : ${faceRegList.length} and data : $faceRegList');
             } else if (face.smilingProbability! > 0.7) {
               print('jus Smile: ${face.smilingProbability}');
             }

@@ -25,18 +25,21 @@ class Home extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
           child: Center(
-        child: Card(
-          elevation: 5,
-          child: ListTile(
-            title: const Text("Hi ML."),
-            onTap: () {
-              if (!featureCompleted) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content:  Text('This feature has not been implemented yet')));
-              } else {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const FaceDetectorView()));
-              }
-            },
+        child: SizedBox(
+          width: 150,
+          child: Card(
+            elevation: 5,
+            child: ListTile(
+              title: const Text("Hi ML."),
+              onTap: () {
+                if (!featureCompleted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('This feature has not been implemented yet')));
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const FaceDetectorView()));
+                }
+              },
+            ),
           ),
         ),
       )),

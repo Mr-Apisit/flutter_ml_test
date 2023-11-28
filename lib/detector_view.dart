@@ -5,8 +5,6 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'camera_view.dart';
 
 class DetectorView extends StatelessWidget {
-  final String title;
-  final String? text;
   final Function(InputImage inputImage) onImage;
   final Function()? onCameraFeedReady;
   final Function(CameraLensDirection direction)? onCameraLensDirectionChanged;
@@ -14,9 +12,7 @@ class DetectorView extends StatelessWidget {
 
   const DetectorView({
     Key? key,
-    required this.title,
     required this.onImage,
-    this.text,
     this.initialCameraLensDirection = CameraLensDirection.back,
     this.onCameraFeedReady,
     this.onCameraLensDirectionChanged,
