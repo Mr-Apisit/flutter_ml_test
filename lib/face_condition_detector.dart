@@ -1,0 +1,111 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+
+import 'face_action_model.dart';
+import 'jpeg_convertor.dart';
+
+Future<FaceAction> faceConditionDetectore(
+  Face face, {
+  FaceActionType type = FaceActionType.faceStand,
+  required InputImage inputImage,
+}) async {
+  FaceAction faceAction = FaceAction("Preparing ...");
+
+  var condition = face.boundingBox.center.direction;
+  if(kDebugMode) {
+    print("range : $condition Y.angle : ${face.headEulerAngleY}");
+  }
+  if (condition > 1.21) {
+    faceAction.msg = "ใบหน้าไกลเกินไป";
+  } else if (condition < 0.86) {
+    faceAction.msg = "ใบหน้าใกล้เกินไป";
+  } else {
+    switch (type) {
+      case FaceActionType.faceStand:
+        if (face.headEulerAngleY! > -13.0 && face.headEulerAngleY! < 13.0) {
+          faceAction.faceStand = makeJpeg(inputImage);
+          faceAction.msg = "บันทึกหน้าตรง .... ";
+          return faceAction;
+        }
+
+      case FaceActionType.faceSmile:
+        if (face.smilingProbability! > 0.7) {
+          faceAction.faceSmile = makeJpeg(inputImage);
+          faceAction.msg = "บันทึกหน้ายิ้ม .... ";
+          return faceAction;
+        }
+
+      case FaceActionType.faceLeft:
+        if (face.headEulerAngleY! < -13.0) {
+          faceAction.faceLeft = makeJpeg(inputImage);
+          faceAction.msg = "บันทึกหันหัวซ้าย .... ";
+          return faceAction;
+        }
+
+      case FaceActionType.faceRight:
+        if (face.headEulerAngleY! > 13.0) {
+          faceAction.faceRight = makeJpeg(inputImage);
+          faceAction.msg = "บันทึกหันหัวขวา .... ";
+          return faceAction;
+        }
+    }
+
+    // print('BIG smile: ${face.smilingProbability}');
+    // final tempDir = await getTemporaryDirectory();
+    // File file = await File('${tempDir.path}/big_smile.jpg').create();
+    // file.writeAsBytesSync(inputImage.bytes!);
+
+    // print('file path ${file.path}');
+    // faceRegList.add(XFile(file.path));
+    // print('length of map : ${faceRegList.length} and data : $faceRegList');
+
+    // else if (face.smilingProbability! > 0.7) {
+    //   print('jus Smile: ${face.smilingProbability}');
+    // }
+    // if (face.headEulerAngleZ! < -13.0) {
+    //   print('rotate head RIGHT : ${face.headEulerAngleZ}');
+    // }
+    // if (face.headEulerAngleZ! > 13.0) {
+    //   print('rotate head LEFT : ${face.headEulerAngleZ}');
+    // }
+    // if (face.headEulerAngleX! < -13.0) {
+    //   print('down head : ${face.headEulerAngleX}');
+    // }
+    // if (face.headEulerAngleX! > 13.0) {
+    //   print('up head : ${face.headEulerAngleX}');
+    // }
+    // if (face.headEulerAngleY! < -13.0) {
+    //   print('turn left head : ${face.headEulerAngleY}');
+    // }
+    // if (face.headEulerAngleY! > 13.0) {
+    //   print('turn right head : ${face.headEulerAngleY}');
+    // }
+    // if (face.leftEyeOpenProbability! < 0.07) {
+    //   print('Wik left eye: ${face.leftEyeOpenProbability}');
+    // }
+    // if (face.rightEyeOpenProbability! < 0.07) {
+    //   print('Wik right eye: ${face.rightEyeOpenProbability}');
+  }
+  return faceAction;
+}
+
+Uint8List makeJpeg(InputImage inputImage) {
+  Uint8List imageBytes = Uint8List(0);
+  if (Platform.isIOS) {
+    imageBytes = convertBgra8888ToJpeg(
+      inputImage.bytes!,
+      inputImage.metadata!.size.width.round(),
+      inputImage.metadata!.size.height.round(),
+    );
+  }
+  if (Platform.isAndroid) {
+    imageBytes = convertNv21ToJpeg(
+      inputImage.bytes!,
+      inputImage.metadata!.size.width.round(),
+      inputImage.metadata!.size.height.round(),
+    );
+  }
+  return imageBytes;
+}
