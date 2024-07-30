@@ -6,51 +6,51 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'face_action_model.dart';
 import 'jpeg_convertor.dart';
 
-Future<FaceAction> faceConditionDetectore(
+Future<FaceAction> faceActionDetector(
   Face face, {
   FaceActionType type = FaceActionType.faceStand,
   required InputImage inputImage,
 }) async {
-  FaceAction faceAction = FaceAction("Preparing ...");
-
   var condition = face.boundingBox.center.direction;
-  if(kDebugMode) {
+  if (kDebugMode) {
     print("range : $condition Y.angle : ${face.headEulerAngleY}");
   }
   if (condition > 1.21) {
-    faceAction.msg = "ใบหน้าไกลเกินไป";
+    return FaceAction("ใบหน้าไกลเกินไป");
   } else if (condition < 0.86) {
-    faceAction.msg = "ใบหน้าใกล้เกินไป";
+    return FaceAction("ใบหน้าใกล้เกินไป");
   } else {
+    FaceAction faceAction = FaceAction("");
     switch (type) {
       case FaceActionType.faceStand:
-        if (face.headEulerAngleY! > -13.0 && face.headEulerAngleY! < 13.0) {
+        faceAction.msg = "มองตรง";
+        if ((condition > 1.02 && condition < 1.1) && (face.headEulerAngleY! > 1.0 && face.headEulerAngleY! < 5.0)) {
           faceAction.faceStand = makeJpeg(inputImage);
           faceAction.msg = "บันทึกหน้าตรง .... ";
-          return faceAction;
         }
 
       case FaceActionType.faceSmile:
+        faceAction.msg = "ยิ้มมม";
         if (face.smilingProbability! > 0.7) {
           faceAction.faceSmile = makeJpeg(inputImage);
           faceAction.msg = "บันทึกหน้ายิ้ม .... ";
-          return faceAction;
         }
 
       case FaceActionType.faceLeft:
+        faceAction.msg = "หันซ้าย";
         if (face.headEulerAngleY! < -13.0) {
           faceAction.faceLeft = makeJpeg(inputImage);
           faceAction.msg = "บันทึกหันหัวซ้าย .... ";
-          return faceAction;
         }
 
       case FaceActionType.faceRight:
+        faceAction.msg = "หันขวา";
         if (face.headEulerAngleY! > 13.0) {
           faceAction.faceRight = makeJpeg(inputImage);
           faceAction.msg = "บันทึกหันหัวขวา .... ";
-          return faceAction;
         }
     }
+    return faceAction;
 
     // print('BIG smile: ${face.smilingProbability}');
     // final tempDir = await getTemporaryDirectory();
@@ -88,7 +88,6 @@ Future<FaceAction> faceConditionDetectore(
     // if (face.rightEyeOpenProbability! < 0.07) {
     //   print('Wik right eye: ${face.rightEyeOpenProbability}');
   }
-  return faceAction;
 }
 
 Uint8List makeJpeg(InputImage inputImage) {

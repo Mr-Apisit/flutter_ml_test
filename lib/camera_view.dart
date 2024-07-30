@@ -90,7 +90,7 @@ class _CameraViewState extends State<CameraView> {
                   ),
           ),
           _backButton(),
-          _switchLiveCameraToggle(),
+          // _switchLiveCameraToggle(),
           // _detectionViewModeToggle(),
           // _zoomControl(),
           // _exposureControl(),
@@ -108,7 +108,7 @@ class _CameraViewState extends State<CameraView> {
           child: FloatingActionButton(
             heroTag: Object(),
             onPressed: () => Navigator.of(context).pop(),
-            backgroundColor: Colors.black54,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             child: const Icon(
               Icons.arrow_back_ios_outlined,
               size: 20,
@@ -117,7 +117,7 @@ class _CameraViewState extends State<CameraView> {
         ),
       );
 
-  Widget _switchLiveCameraToggle() => Positioned(
+  Widget switchLiveCameraToggle() => Positioned(
         bottom: 8,
         right: 8,
         child: SizedBox(
@@ -126,7 +126,7 @@ class _CameraViewState extends State<CameraView> {
           child: FloatingActionButton(
             heroTag: Object(),
             onPressed: _switchLiveCamera,
-            backgroundColor: Colors.black54,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             child: Icon(
               Platform.isIOS ? Icons.flip_camera_ios_outlined : Icons.flip_camera_android_outlined,
               size: 25,
